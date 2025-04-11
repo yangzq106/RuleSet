@@ -16,17 +16,21 @@ jobs:
           repository: DustinWin/ruleset_geodata
           ref: mihomo-ruleset
           path: source-repo
-
+          fetch-depth: 0
 
       # 2. 筛选.list文件（排除.github目录）
       - name: Filter .list Files
         run: |
           mkdir -p filtered-files
-          # 移除source-repo父目录前缀（网页6）
-          find source-repo -name "*.list" -exec sh -c 'cp --parents "$0" filtered-files && \
-            mv "filtered-files/${0#source-repo/}" filtered-files/' {} \;
-          # 清理残留目录（网页3）
-          rm -rf filtered-files/source-repo
+          # 消除父目录结构（关键修正点）
+          find source-repo -name "*.list" -exec sh -c '
+            dest_path="filtered-files/${0#source-repo/}" &&
+            mkdir -p "$(dirname "$dest_path")" &&
+            cp -v "$0" "$dest_path"
+          ' {} \;
+          
+          # 清理空目录（网页3补充）
+          find filtered-files -type d -empty -delete
           tree filtered-files
 
       # 3. 初始化目标仓库并增量推送
@@ -35,8 +39,8 @@ jobs:
         with:
           github_token: ${{ secrets.SYNC_TOKEN }}  # 目标仓库的PAT密钥[2](@ref)
           publish_dir: ./filtered-files
-          destination_dir: .  # 相对路径推送至根目录[6](@ref)
           publish_branch: mihomo
-          force_orphan: true  # 关闭强制覆盖，保留历史文件[7](@ref)
+          destination_dir: .  # 相对路径推送至根目录[6](@ref)
+          force_orphan: true  # 首次推送需强制初始化分支
           disable_nojekyll: true  # 关键参数：禁止生成.nojekyll（网页7）
           allow_empty_commit: false  # 无变更时跳过提交
