@@ -6,7 +6,7 @@ on:
   workflow_dispatch:      # 允许手动触发
 
 jobs:
-  filter-and-sync:
+  Filter-Sync:
     runs-on: ubuntu-latest
     steps:
       # 1. 检出源仓库（排除.git目录避免冲突）
@@ -16,20 +16,31 @@ jobs:
           repository: DustinWin/ruleset_geodata
           ref: mihomo-ruleset
           path: source-repo
-          fetch-depth: 0
 
-      # 2. 筛选.list文件（排除.github目录）
-      - name: Filter .list Files
+      # 2. 下载额外.list文件（网页5）
+      - name: Download External Files
         run: |
           mkdir -p filtered-files
-          # 消除父目录结构（关键修正点）
+          # 下载额外的规则
+          wget -qO filtered-files/NetEaseMusic.list \
+            https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/NetEaseMusic/NetEaseMusic.list
+          wget -qO filtered-files/PikPak.list \
+            https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PikPak/PikPak.list
+          wget -qO filtered-files/GitLab.list \
+            https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitLab/GitLab.list
+          wget -qO filtered-files/Bing.list \
+            https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Bing/Bing.list
+
+      # 3. 合并本地和远程.list文件（网页6）
+      - name: Merge Files
+        run: |
+          # 复制源仓库的.list文件到目标目录
           find source-repo -name "*.list" -exec sh -c '
             dest_path="filtered-files/${0#source-repo/}" &&
             mkdir -p "$(dirname "$dest_path")" &&
             cp -v "$0" "$dest_path"
           ' {} \;
-          
-          # 清理空目录（网页3补充）
+          # 清理空目录
           find filtered-files -type d -empty -delete
           tree filtered-files
 
