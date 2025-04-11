@@ -34,5 +34,5 @@ jobs:
           publish_dir: ./filtered-files
           destination_dir: .  # 相对路径推送至根目录[6](@ref)
           publish_branch: mihomo
-          force_orphan: false  # 关闭强制覆盖，保留历史文件[7](@ref)
+          force_orphan: true  # 关闭强制覆盖，保留历史文件[7](@ref)
           allow_empty_commit: false  # 无变更时跳过提交
