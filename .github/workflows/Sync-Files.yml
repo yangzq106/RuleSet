@@ -16,15 +16,18 @@ jobs:
           repository: DustinWin/ruleset_geodata
           ref: mihomo-ruleset
           path: source-repo
-          fetch-depth: 0  # 获取完整提交历史[6](@ref)
+
 
       # 2. 筛选.list文件（排除.github目录）
       - name: Filter .list Files
         run: |
           mkdir -p filtered-files
-          # 递归查找并复制.list文件，排除.github目录
-          find source-repo -path 'source-repo/.github' -prune -o -name '*.list' -exec cp --parents {} filtered-files \;
-          tree filtered-files  # 调试目录结构
+          # 移除source-repo父目录前缀（网页6）
+          find source-repo -name "*.list" -exec sh -c 'cp --parents "$0" filtered-files && \
+            mv "filtered-files/${0#source-repo/}" filtered-files/' {} \;
+          # 清理残留目录（网页3）
+          rm -rf filtered-files/source-repo
+          tree filtered-files
 
       # 3. 初始化目标仓库并增量推送
       - name: Push To Target Repo
@@ -35,4 +38,5 @@ jobs:
           destination_dir: .  # 相对路径推送至根目录[6](@ref)
           publish_branch: mihomo
           force_orphan: true  # 关闭强制覆盖，保留历史文件[7](@ref)
+          disable_nojekyll: true  # 关键参数：禁止生成.nojekyll（网页7）
           allow_empty_commit: false  # 无变更时跳过提交
