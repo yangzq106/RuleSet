@@ -22,13 +22,13 @@ jobs:
         run: |
           mkdir -p filtered-files
           # 下载额外的规则
-          wget -qO filtered-files/NetEaseMusic.list \
+          wget -qO filtered-files/neteasemusic.list \
             https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/NetEaseMusic/NetEaseMusic.list
-          wget -qO filtered-files/PikPak.list \
+          wget -qO filtered-files/pikpak.list \
             https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PikPak/PikPak.list
-          wget -qO filtered-files/GitLab.list \
+          wget -qO filtered-files/gitLab.list \
             https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitLab/GitLab.list
-          wget -qO filtered-files/Bing.list \
+          wget -qO filtered-files/bing.list \
             https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Bing/Bing.list
 
       # 3. 合并本地和远程.list文件（网页6）
